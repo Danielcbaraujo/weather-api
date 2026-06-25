@@ -1,15 +1,25 @@
 const express = require("express");
-
 const router = express.Router();
+const { getWeather } = require("../services/weatherService");
+router.get("/weather/:city", async (req, res) => {
+  try {
+    const city = req.params.city;
 
-app.get("/weather/:city", async (req, res) => {
-  const city = req.params.city;
+    const weather = await getWeather(city);
 
-  await getWeather(city);
+    res.json(weather);
+  } catch (error) {
 
-  res.json({
-    message: "ok",
-  });
+    if (error.message === "CITY_NOT_FOUND") {
+      return res.status(404).json({
+        error: "Cidade não encontrada",
+      });
+    }
+
+    res.status(500).json({
+      error: "Erro interno no servidor",
+    });
+  }
 });
 
 module.exports = router;
